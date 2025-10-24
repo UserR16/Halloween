@@ -1,0 +1,126 @@
+local repo = 'https://raw.githubusercontent.com/deividcomsono/Obsidian/main/'
+
+local Library = loadstring(game:HttpGet(repo .. 'Library.lua'))()
+local ThemeManager = loadstring(game:HttpGet(repo .. 'addons/ThemeManager.lua'))()
+local SaveManager = loadstring(game:HttpGet(repo .. 'addons/SaveManager.lua'))()
+local Options = Library.Options
+local Toggles = Library.Toggles
+
+Library.ShowToggleFrameInKeybinds = true 
+Library.ShowCustomCursor = true
+Library.NotifySide = "Right"
+Library.Scheme.AccentColor = Color3.fromRGB(0, 255, 150)
+
+local Window = Library:CreateWindow({
+	Title = "Arimium Hub",
+  Font = Enum.Font.SourceSansBold,
+	NotifySide = "Right",
+  Footer = "DIE OF DEATH | v1.2"
+})
+
+local Tabs = {
+  Shared = Window:AddTab("Shared", "boxes"),
+  ["UI Settings"] = Window:AddTab("Config", "settings"),
+}
+
+local Lighting = Tabs.Shared:AddLeftGroupbox("Lighting", "lightbulb")
+local Default = {
+Shadows = game.Lighting.GlobalShadows,
+Brightness = game.Lighting.Brightness,
+OutdoorAmbient = game.Lighting.OutdoorAmbient
+}
+game:GetService("RunService").RenderStepped:Connect(function()
+workspace.CurrentCamera.FieldOfView = _G.FieldOfView or 70
+end)
+Lighting:AddSlider("FOV", {
+	Text = "Field Of View",
+	Default = 70,
+	Min = 70,
+	Max = 120,
+	Rounding = 1,
+	Compact = true,
+  Callback = function(v)
+_G.FieldOfView = v
+end})
+Lighting:AddToggle("Fullbright",{
+    Text = "Fullbright",
+    Default = false,
+    Callback = function(v)
+_G.Fullbright = v
+game:GetService("RunService").RenderStepped:Connect(function()
+if _G.Fullbright then
+game.Lighting.GlobalShadows = false
+game.Lighting.Brightness = 0.3
+game.Lighting.OutdoorAmbient = Color3.new(1,1,1)
+else
+game.Lighting.GlobalShadows = Default.Shadows
+game.Lighting.Brightness = Default.Brightness
+game.Lighting.OutdoorAmbient = Default.OutdoorAmbient
+end
+end)
+end})
+Lighting:AddToggle("NoFog",{
+    Text = "Disable Fog",
+    Default = false,
+    Callback = function(v)
+_G.NoFog = v
+game:GetService("RunService").RenderStepped:Connect(function()
+if not game.Lighting:GetAttribute("FogStart") then game.Lighting:SetAttribute("FogStart", game.Lighting.FogStart) end
+if not game.Lighting:GetAttribute("FogEnd") then game.Lighting:SetAttribute("FogEnd", game.Lighting.FogEnd) end
+game.Lighting.FogStart = _G.NoFog and 0 or game.Lighting:GetAttribute("FogStart")
+game.Lighting.FogEnd = _G.NoFog and math.huge or game.Lighting:GetAttribute("FogEnd")
+local fog = game.Lighting:FindFirstChildOfClass("Atmosphere")
+if fog then
+if not fog:GetAttribute("Density") then fog:SetAttribute("Density", fog.Density) end
+fog.Density = _G.NoFog and 0 or fog:GetAttribute("Density")
+end
+end)
+end})
+local Players = Tabs.Shared:AddRightGroupbox("Players", "user")
+game:GetService("RunService").RenderStepped:Connect(function()
+if _G.ApplyPlayer then
+game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = _G.WalkSpeed or 20
+end
+end)
+Players:AddSlider("WalkSpeed", {
+	Text = "Walk Speed",
+	Default = 20,
+	Min = 20,
+	Max = 100,
+	Rounding = 1,
+	Compact = true,
+  Callback = function(v)
+_G.WalkSpeed = v
+end})
+Players:AddToggle("ApplyPlayer",{
+    Text = "Apply Settings",
+    Default = false,
+    Callback = function(v)
+_G.ApplyPlayer = v
+end})
+Players:AddToggle("Noclip",{
+    Text = "Noclip",
+    Default = false,
+    Callback = function(v)
+if v then
+Noclip = game:GetService("RunService").RenderStepped:Connect(function()
+if game.Players.LocalPlayer and game.Players.LocalPlayer.Character then
+for _, part in pairs(game.Players.LocalPlayer.Character:GetChildren()) do
+if part:IsA("BasePart") then
+part.CanCollide = false
+end
+end
+end
+end)
+else
+if Noclip then
+Noclip:Disconnect()
+Noclip = nil
+end
+end
+end}):AddKeyPicker("NoclipKeybind", {
+   Default = "N",
+   Text = "Noclip",
+   Mode = Library.IsMobile and "Toggle" or "Hold",
+   SyncToggleState = Library.IsMobile
+})
