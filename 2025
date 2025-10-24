@@ -20,6 +20,7 @@ local Window = Library:CreateWindow({
 
 local Tabs = {
   Shared = Window:AddTab("Shared", "boxes"),
+  GEFs = Window:AddTab("GEFs", "sword"),
   ["UI Settings"] = Window:AddTab("Config", "settings"),
 }
 
@@ -124,3 +125,27 @@ end}):AddKeyPicker("NoclipKeybind", {
    Mode = Library.IsMobile and "Toggle" or "Hold",
    SyncToggleState = Library.IsMobile
 })
+--// GEFs \\
+local Main = Tabs.GEFs:AddLeftGroupbox("Farm", "sword")
+game:GetService("RunService").RenderStepped:Connect(function()
+if _G.AutoFarmTooth then
+for _, v in ipairs(workspace.GEFs:GetChildren()) do
+if v.Parent.Name == "GEFs" and v:FindFirstChild("Hurtbox") then
+v.Hurtbox.CanTouch = not _G.AutoFarmTooth or false
+game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = v.Hurtbox.CFrame
+end
+end
+for _, v in ipairs(workspace.Pickups:GetChildren()) do
+if v.Parent.Name == "Pickups" and v.Name == "Tooth" and v then
+game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = v.Hurtbox.CFrame
+fireproximityprompt(v.ProximityPrompt)
+end
+end
+end
+end)
+Main:AddToggle("GEFs",{
+    Text = "Auto Farm Tooth",
+    Default = false,
+    Callback = function(v)
+_G.AutoFarmTooth = v
+end})
