@@ -15,16 +15,15 @@ local Window = Library:CreateWindow({
 	Title = "Arimium Hub",
   Font = Enum.Font.SourceSansBold,
 	NotifySide = "Right",
-  Footer = "DIE OF DEATH | v1.2"
+  Footer = "Destroy Grandma | v1.0"
 })
 
 local Tabs = {
-  Shared = Window:AddTab("Shared", "boxes"),
-  GEFs = Window:AddTab("GEFs", "sword"),
+  Main = Window:AddTab("Main", "swords"),
   ["UI Settings"] = Window:AddTab("Config", "settings"),
 }
 
-local Lighting = Tabs.Shared:AddLeftGroupbox("Lighting", "lightbulb")
+local Lighting = Tabs.Main:AddLeftGroupbox("Camera", "camera")
 local Default = {
 Shadows = game.Lighting.GlobalShadows,
 Brightness = game.Lighting.Brightness,
@@ -77,75 +76,5 @@ fog.Density = _G.NoFog and 0 or fog:GetAttribute("Density")
 end
 end)
 end})
-local Players = Tabs.Shared:AddRightGroupbox("Players", "user")
-game:GetService("RunService").RenderStepped:Connect(function()
-if _G.ApplyPlayer then
-game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = _G.WalkSpeed or 20
-end
-end)
-Players:AddSlider("WalkSpeed", {
-	Text = "Walk Speed",
-	Default = 20,
-	Min = 20,
-	Max = 100,
-	Rounding = 1,
-	Compact = true,
-  Callback = function(v)
-_G.WalkSpeed = v
-end})
-Players:AddToggle("ApplyPlayer",{
-    Text = "Apply Settings",
-    Default = false,
-    Callback = function(v)
-_G.ApplyPlayer = v
-end})
-Players:AddToggle("Noclip",{
-    Text = "Noclip",
-    Default = false,
-    Callback = function(v)
-if v then
-Noclip = game:GetService("RunService").RenderStepped:Connect(function()
-if game.Players.LocalPlayer and game.Players.LocalPlayer.Character then
-for _, part in pairs(game.Players.LocalPlayer.Character:GetChildren()) do
-if part:IsA("BasePart") then
-part.CanCollide = false
-end
-end
-end
-end)
-else
-if Noclip then
-Noclip:Disconnect()
-Noclip = nil
-end
-end
-end}):AddKeyPicker("NoclipKeybind", {
-   Default = "N",
-   Text = "Noclip",
-   Mode = Library.IsMobile and "Toggle" or "Hold",
-   SyncToggleState = Library.IsMobile
-})
---// GEFs \\
-local Main = Tabs.GEFs:AddLeftGroupbox("Farm", "sword")
-game:GetService("RunService").RenderStepped:Connect(function()
-if _G.AutoFarmTooth then
-for _, v in ipairs(workspace.GEFs:GetChildren()) do
-if v.Parent.Name == "GEFs" and v:FindFirstChild("Hurtbox") then
-v.Hurtbox.CanTouch = not _G.AutoFarmTooth or false
-game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = v.Hurtbox.CFrame
-end
-end
-for _, v in ipairs(workspace.Pickups:GetChildren()) do
-if v.Parent.Name == "Pickups" and v.Name == "Tooth" and v then
-game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = v.Hurtbox.CFrame
-fireproximityprompt(v.ProximityPrompt)
-end
-end
-end
-end)
-Main:AddToggle("GEFs",{
-    Text = "Auto Farm Tooth",
-    Default = false,
-    Callback = function(v)
-_G.AutoFarmTooth = v
-end})
+local Players = Tabs.Main:AddRightGroupbox("Players", "user")
+
